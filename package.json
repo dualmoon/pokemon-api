@@ -1,0 +1,25 @@
+{
+  "name": "pokemon-api",
+  "version": "0.0.1",
+  "description": "A pokemon API",
+  "main": "index.coffee",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/dualmoon/pokemon-api"
+  },
+  "author": "Ashley Luna <luna@airsi.de>",
+  "license": "GPL-3",
+  "bugs": {
+    "url": "https://github.com/dualmoon/pokemon-api/issues"
+  },
+  "homepage": "https://github.com/dualmoon/pokemon-api",
+  "dependencies": {
+    "chai": "^1.10.0",
+    "cheerio": "^0.18.0",
+    "mongoskin": "^1.4.4",
+    "request": "^2.49.0"
+  }
+}
