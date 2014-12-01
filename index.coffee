@@ -24,7 +24,6 @@ request.get 'http://bulbapedia.bulbagarden.net/wiki/List_of_moves', (err, res, b
     cells = row.children.filter (v,i,p) -> v.name is 'td'
     #id
     id         = cells[0].children[0].data.trim()
-    console.log util.inspect(cells[1].children[1].children[0].data)
     name       = cells[1].children[1].children[0].data.trim()
     type       = cells[2].children[0].children[0].children[0].data.trim()
     category   = cells[3].children[0].children[0].children[0].data.trim()
@@ -34,6 +33,7 @@ request.get 'http://bulbapedia.bulbagarden.net/wiki/List_of_moves', (err, res, b
     accuracy   = cells[7].children[0].data.trim()
     generation = cells[8].children[0].data.trim()
     thisObj =
+      "id"         : id
       "name"       : name
       "type"       : type
       "category"   : category
