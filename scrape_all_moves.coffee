@@ -1,13 +1,36 @@
-request = require 'request'
-cheerio = require 'cheerio'
-fs = require 'fs'
-priv = require './private'
+## Requires!
+request   = require 'request'
+cheerio   = require 'cheerio'
+fs        = require 'fs'
 mongoskin = require 'mongoskin'
+sys       = require 'sys'
+optparse  = require 'optparse'
+
+## Input flag options
+database = file = outputChosen = filename = false
+switches = [
+  ['-d', '--database', 'Store scraped data directly in the database'],
+  ['-f', '--file [FILENAME]', 'Store scraped data in a file as JSON strinified data']
+]
+parser = new optparse.OptionParser switches
+parser.on 'database', ->
+  database = true
+  outputChosen = true
+parser.on 'file', (name, value) ->
+  file = true
+  filename = value or 'moves.json'
+  outputChosen = true
+parser.parse process.argv
+if not outputChosen
+  console.log 'No output method chosen, dry run.'
+
+## ~Private~ DB connect info
+priv      = require './private'
+# aaand build that connection like a boss
 db = mongoskin.db priv.mongoString, { native_parser: true }
-
 db.bind 'moves'
-$ = ''
 
+## Send out the request. Basically int main()
 request.get 'http://bulbapedia.bulbagarden.net/wiki/List_of_moves', (err, res, body) ->
   $ = cheerio.load(body)
 
@@ -45,14 +68,23 @@ request.get 'http://bulbapedia.bulbagarden.net/wiki/List_of_moves', (err, res, b
       "accuracy"   : accuracy
       "generation" : generation
     moves[id] = thisObj
-    db.moves.insert thisObj, (err, result) ->
-      if err then throw err
-      if result then console.log "Added #{thisObj.name} to the db."
-  
-  #json = []
-  #json.push JSON.stringify(obj) for obj in moves
-  #fs.writeFile './moves.json', json.join(',\n'), (err) ->
-  #    if err
-  #      console.log err
-  #    else
-  #      console.log "The file was saved!"
+
+  ## Some bug giving a null object at position 0
+  moves = moves[1..]
+
+  console.log "Successfully scraped #{moves.length} moves."
+
+  if database
+    db.moves.insert moves, (err, result) ->
+      if err
+        throw err
+      else
+        db.close()
+        console.log 'Successfully wrote to database.\nFinishing up, one moment...'
+
+  if file
+    fs.writeFile filename, JSON.stringify(moves), (err) ->
+        if err
+          console.log err
+        else
+          console.log "Successfully wrote #{filename} to disk."
